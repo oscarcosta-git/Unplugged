@@ -10,7 +10,7 @@ import SwiftUI
 struct SettingsView: View {
     var body: some View {
         VStack(spacing: 25) {
-            
+            Text("Settings")
         }
     }
 }
