@@ -26,12 +26,7 @@ struct ContentView: View {
     }
 }
 
-struct AddView: View {
-    var body: some View {
-        Text("Add View")
-            .font(.largeTitle)
-    }
-}
+
 
 struct LeaderboardView: View {
     var body: some View {
