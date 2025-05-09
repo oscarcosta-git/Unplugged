@@ -16,9 +16,47 @@ struct SettingsView: View {
     @State private var appTrackingEnabled = true
     @State private var showResetAlert = false
     
+    // Mock data - would be replaced with actual data in a real app
+    private let totalScreenTime = "2h 15m"
+    private let goalsAchieved = 3
+    private let remainingTime = "45m"
+    
     var body: some View {
         NavigationView {
             List {
+                // Summary section at the top
+                Section {
+                    VStack(spacing: 16) {
+                        HStack(spacing: 30) {
+                            // Screen Time
+                            SummaryItem(
+                                icon: "iphone.circle.fill",
+                                title: "Screen Time",
+                                value: totalScreenTime,
+                                color: .blue
+                            )
+                            
+                            // Goals Achieved
+                            SummaryItem(
+                                icon: "trophy.fill",
+                                title: "Goals",
+                                value: "\(goalsAchieved)",
+                                color: .green
+                            )
+                            
+                            // Remaining Time
+                            SummaryItem(
+                                icon: "clock.fill",
+                                title: "Remaining",
+                                value: remainingTime,
+                                color: .orange
+                            )
+                        }
+                        .padding(.vertical, 8)
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+                
                 Section(header: Text("Notifications")) {
                     NavigationLink(destination: ReminderFrequencyView(selectedFrequency: $reminderFrequency)) {
                         HStack {
@@ -78,6 +116,31 @@ struct SettingsView: View {
         
         // Reset points
         points = 250
+    }
+}
+
+// Summary item component
+struct SummaryItem: View {
+    let icon: String
+    let title: String
+    let value: String
+    let color: Color
+    
+    var body: some View {
+        VStack(spacing: 6) {
+            Image(systemName: icon)
+                .font(.system(size: 24))
+                .foregroundColor(color)
+            
+            Text(value)
+                .font(.system(.title3, design: .rounded))
+                .fontWeight(.bold)
+            
+            Text(title)
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity)
     }
 }
 
