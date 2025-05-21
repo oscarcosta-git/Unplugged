@@ -12,6 +12,11 @@ struct ContentView: View {
                     Image(systemName: "plus.circle.fill")
                 }
             
+            AdviceView()
+                .tabItem {
+                    Image(systemName: "lightbulb.fill")
+                }
+            
             LeaderboardView()
                 .tabItem {
                     Image(systemName: "trophy.fill")

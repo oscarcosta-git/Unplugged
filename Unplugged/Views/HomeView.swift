@@ -8,6 +8,11 @@
 import SwiftUI
 
 struct HomeView: View {
+    @State private var currentTip = "Try setting specific screen time goals for different apps rather than a general limit for all screen time."
+    @State private var isLoadingTip = false
+    @State private var hasLoadedInitialTip = false
+    @Environment(\.colorScheme) private var colorScheme  // Add this line
+    
     var body: some View {
         ScrollView {
             VStack(spacing: 25) {
@@ -37,6 +42,41 @@ struct HomeView: View {
                 }
                 .padding(.top, 10)
                 .padding(.bottom, 10)
+                
+                // AI Tip Box
+                HStack(alignment: .top, spacing: 15) {
+                    Image(systemName: "brain.head.profile")
+                        .font(.system(size: 24))
+                        .foregroundColor(.blue)
+                        .frame(width: 36, height: 36)
+                        .background(Color.blue.opacity(0.1))
+                        .clipShape(Circle())
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Daily Tip")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .foregroundColor(.secondary)
+                        
+                        Text(currentTip)
+                            .font(.body)
+                    }
+                    
+                    Spacer()
+                    
+                    Button(action: refreshTip) {
+                        Image(systemName: isLoadingTip ? "clock" : "arrow.clockwise")
+                            .foregroundColor(.blue)
+                            .font(.system(size: 20))
+                    }
+                    .disabled(isLoadingTip)
+                }
+                .padding()
+                .background(RoundedRectangle(cornerRadius: 20).fill(Color.blue.opacity(0.05)))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(Color.blue.opacity(0.1), lineWidth: 1)
+                )
                 
                 // Success Score Box
                 MetricBox(title: "Success Score", description: "Success Score is a dynamic tracking system that measures your progress, keeps you motivated, and helps you achieve your goals.") {
@@ -83,12 +123,36 @@ struct HomeView: View {
                 }
                 .padding(20)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(RoundedRectangle(cornerRadius: 20).fill(Color.white))
-                .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 5)
+                .background(RoundedRectangle(cornerRadius: 20).fill(Color(.systemBackground)))
+                .shadow(color: colorScheme == .dark ? .clear : .black.opacity(0.05), radius: 10, x: 0, y: 5)
             }
             .padding()
         }
         .background(Color(.systemGray6).opacity(0.5).edgesIgnoringSafeArea(.all))
+        .onAppear {
+            if !isLoadingTip {
+                refreshTip()
+            }
+        }
+    }
+    
+    private func refreshTip() {
+        guard !isLoadingTip else { return }
+        isLoadingTip = true
+        
+        Task {
+            let apiKey = "AIzaSyCQry4YMN4sIONcklSyHqGSKZBU_HCnl3s"
+            let ai = GoogleGenAI(apiKey: apiKey)
+            
+            let newTip = await ai.generateContent(
+                prompt: "Give me a single short tip (max 20 words) for digital wellbeing and healthy technology use."
+            )
+            
+            await MainActor.run {
+                currentTip = newTip
+                isLoadingTip = false
+            }
+        }
     }
 }
 
@@ -134,6 +198,7 @@ struct MetricBox<Content: View>: View {
     var title: String
     var description: String
     var content: () -> Content
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         VStack(alignment: .leading, spacing: 15) {
@@ -156,7 +221,7 @@ struct MetricBox<Content: View>: View {
             }
         }
         .padding(20)
-        .background(RoundedRectangle(cornerRadius: 20).fill(Color.white))
-        .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 5)
+        .background(RoundedRectangle(cornerRadius: 20).fill(Color(.systemBackground)))
+        .shadow(color: colorScheme == .dark ? .clear : .black.opacity(0.05), radius: 10, x: 0, y: 5)
     }
 }
