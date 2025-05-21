@@ -113,32 +113,3 @@ struct AdviceView: View {
         return await ai.generateContent(prompt: question)
     }
 }
-
-// Models -- MOVE TO SEPRATE
-struct AdviceMessage: Identifiable {
-    var id = UUID()
-    var content: String
-    var isFromAI: Bool
-    var timestamp = Date()
-}
-
-struct GeminiRequest: Codable {
-    let contents: [Content]
-}
-
-struct Content: Codable {
-    let role: String
-    let parts: [Part]
-}
-
-struct Part: Codable {
-    let text: String
-}
-
-struct GeminiResponse: Codable {
-    let candidates: [Candidate]
-}
-
-struct Candidate: Codable {
-    let content: Content
-}

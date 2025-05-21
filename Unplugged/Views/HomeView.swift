@@ -53,7 +53,7 @@ struct HomeView: View {
                         .clipShape(Circle())
                     
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Daily Tip")
+                        Text("Helpful Tip")
                             .font(.subheadline)
                             .fontWeight(.medium)
                             .foregroundColor(.secondary)
