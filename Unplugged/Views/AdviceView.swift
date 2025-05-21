@@ -114,7 +114,7 @@ struct AdviceView: View {
     }
 }
 
-// Models
+// Models -- MOVE TO SEPRATE
 struct AdviceMessage: Identifiable {
     var id = UUID()
     var content: String
