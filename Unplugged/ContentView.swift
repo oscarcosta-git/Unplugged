@@ -5,38 +5,45 @@ struct ContentView: View {
         TabView {
             HomeView()
                 .tabItem {
-                    Image(systemName: "house.fill")
+                    VStack {
+                        Image(systemName: "house.fill")
+                        Text("Home")
+                    }
                 }
+            
             AddView()
                 .tabItem {
-                    Image(systemName: "plus.circle.fill")
+                    VStack {
+                        Image(systemName: "plus.circle.fill")
+                        Text("Apps")
+                    }
+                }
+            
+            ProgressView()
+                .tabItem {
+                    VStack {
+                        Image(systemName: "chart.bar.fill")
+                        Text("Progress")
+                    }
                 }
             
             AdviceView()
                 .tabItem {
-                    Image(systemName: "lightbulb.fill")
-                }
-            
-            LeaderboardView()
-                .tabItem {
-                    Image(systemName: "trophy.fill")
+                    VStack {
+                        Image(systemName: "lightbulb.fill")
+                        Text("Advice")
+                    }
                 }
             
             SettingsView()
                 .tabItem {
-                    Image(systemName: "gear")
+                    VStack {
+                        Image(systemName: "gear")
+                        Text("Settings")
+                    }
                 }
         }
         .accentColor(.blue)
-    }
-}
-
-
-
-struct LeaderboardView: View {
-    var body: some View {
-        Text("Leaderboard View")
-            .font(.largeTitle)
     }
 }
 
