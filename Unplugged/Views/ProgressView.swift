@@ -2,14 +2,12 @@ import SwiftUI
 import SwiftData
 
 struct ProgressView: View {
+    @StateObject private var dummyData = DummyDataManager.shared
     @Environment(\.colorScheme) private var colorScheme
+    @Query(sort: \TrackedApp.name) private var trackedApps: [TrackedApp]
     @State private var selectedTimeFrame: TimeFrame = .week
     @State private var currentDate = Date()
     @State private var selectedDate: Date?
-    
-    // Sample data - in a real app, this would be fetched from database
-    let weeklyReduction: Int = 15
-    let dailyAverageTime: Int = 126 // minutes
     
     enum TimeFrame: String, CaseIterable, Identifiable {
         case day = "Day"
@@ -24,8 +22,8 @@ struct ProgressView: View {
                 VStack(spacing: 20) {
                     // Weekly summary card
                     WeeklySummaryCard(
-                        weeklyReduction: weeklyReduction,
-                        dailyAverageTime: dailyAverageTime
+                        weeklyReduction: dummyData.weeklyReduction,
+                        dailyAverageTime: dummyData.dailyAverageTime
                     )
                     
                     // Calendar tracker
@@ -69,35 +67,22 @@ struct ProgressView: View {
                     .background(RoundedRectangle(cornerRadius: 16).fill(Color(.systemBackground)))
                     .shadow(color: colorScheme == .dark ? .clear : .black.opacity(0.05), radius: 8, x: 0, y: 2)
                     
-                    // Insights section
+                    // Insights section with real app data
                     VStack(alignment: .leading, spacing: 16) {
                         Text("Screen Time Insights")
                             .font(.headline)
                             .padding(.horizontal)
                         
-                        InsightCard(
-                            title: "Most Used App",
-                            value: "Instagram",
-                            detail: "45 min daily average",
-                            icon: "camera",
-                            color: .purple
-                        )
-                        
-                        InsightCard(
-                            title: "Most Productive Day",
-                            value: "Tuesday",
-                            detail: "62% below average screen time",
-                            icon: "calendar",
-                            color: .green
-                        )
-                        
-                        InsightCard(
-                            title: "Peak Usage Time",
-                            value: "9-11 PM",
-                            detail: "Consider setting a digital curfew",
-                            icon: "moon.stars",
-                            color: .blue
-                        )
+                        ForEach(dummyData.getInsights(from: trackedApps).indices, id: \.self) { index in
+                            let insight = dummyData.getInsights(from: trackedApps)[index]
+                            InsightCard(
+                                title: insight.title,
+                                value: insight.value,
+                                detail: insight.detail,
+                                icon: insight.icon,
+                                color: colorForInsight(insight.color)
+                            )
+                        }
                     }
                     .padding(.vertical)
                     .background(RoundedRectangle(cornerRadius: 16).fill(Color(.systemBackground)))
@@ -109,9 +94,21 @@ struct ProgressView: View {
             .navigationTitle("Progress & Insights")
         }
     }
+    
+    private func colorForInsight(_ colorName: String) -> Color {
+        switch colorName.lowercased() {
+        case "purple": return .purple
+        case "green": return .green
+        case "blue": return .blue
+        case "orange": return .orange
+        case "red": return .red
+        default: return .blue
+        }
+    }
 }
 
 struct WeeklySummaryCard: View {
+    @StateObject private var dummyData = DummyDataManager.shared
     let weeklyReduction: Int
     let dailyAverageTime: Int
     
@@ -156,7 +153,7 @@ struct WeeklySummaryCard: View {
                 
                 // Daily average
                 VStack(alignment: .center, spacing: 8) {
-                    Text(formatMinutes(dailyAverageTime))
+                    Text(dummyData.formatMinutes(dailyAverageTime))
                         .font(.system(.title, design: .rounded))
                         .fontWeight(.bold)
                     
@@ -186,31 +183,15 @@ struct WeeklySummaryCard: View {
         .background(RoundedRectangle(cornerRadius: 16).fill(Color(.systemBackground)))
         .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
     }
-    
-    private func formatMinutes(_ minutes: Int) -> String {
-        let hours = minutes / 60
-        let mins = minutes % 60
-        
-        if hours > 0 {
-            return "\(hours)h \(mins)m"
-        } else {
-            return "\(mins)m"
-        }
-    }
 }
 
 struct CalendarGoalTrackerView: View {
+    @StateObject private var dummyData = DummyDataManager.shared
     @Binding var currentDate: Date
     @Binding var selectedDate: Date?
     
     private let columns = Array(repeating: GridItem(.flexible()), count: 7)
     private let weekdays = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]
-    
-    // Sample goal achievement data - this would come from persistent storage
-    private let achievedGoalDays: Set<String> = [
-        "2025-05-17", "2025-05-18", "2025-05-19", "2025-05-21", "2025-05-22"
-    ]
-    
     private let calendar = Calendar.current
     
     private var monthTitle: String {
@@ -276,7 +257,7 @@ struct CalendarGoalTrackerView: View {
                     let dateString = formatDate(date)
                     let isToday = calendar.isDateInToday(date)
                     let isSelected = selectedDate == date
-                    let achieved = achievedGoalDays.contains(dateString)
+                    let achieved = dummyData.achievedGoalDays.contains(dateString)
                     let isFutureDate = date > Date()
                     
                     Button(action: { selectedDate = date }) {
@@ -360,43 +341,11 @@ struct CalendarGoalTrackerView: View {
 }
 
 struct ScreenTimeChartView: View {
+    @StateObject private var dummyData = DummyDataManager.shared
     let timeFrame: ProgressView.TimeFrame
     
-    // Sample data - would be fetched from database
-    private let dailyData = [
-        (label: "Mon", value: 120),
-        (label: "Tue", value: 85),
-        (label: "Wed", value: 150),
-        (label: "Thu", value: 95),
-        (label: "Fri", value: 110),
-        (label: "Sat", value: 180),
-        (label: "Sun", value: 145)
-    ]
-    
-    private let weeklyData = [
-        (label: "W1", value: 840),
-        (label: "W2", value: 720),
-        (label: "W3", value: 680),
-        (label: "W4", value: 590)
-    ]
-    
-    private let monthlyData = [
-        (label: "Jan", value: 3600),
-        (label: "Feb", value: 3200),
-        (label: "Mar", value: 3000),
-        (label: "Apr", value: 2800),
-        (label: "May", value: 2400)
-    ]
-    
     private var data: [(label: String, value: Int)] {
-        switch timeFrame {
-        case .day:
-            return dailyData
-        case .week:
-            return weeklyData
-        case .month:
-            return monthlyData
-        }
+        return dummyData.getChartData(for: timeFrame.rawValue)
     }
     
     private var maxValue: Int {

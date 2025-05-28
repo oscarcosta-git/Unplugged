@@ -8,10 +8,11 @@
 import SwiftUI
 
 struct HomeView: View {
-    @State private var currentTip = "Try setting specific screen time goals for different apps rather than a general limit for all screen time."
+    @StateObject private var dummyData = DummyDataManager.shared
+    @State private var currentTip = "Welcome! Loading your personalized tip..."
     @State private var isLoadingTip = false
     @State private var hasLoadedInitialTip = false
-    @Environment(\.colorScheme) private var colorScheme  // Add this line
+    @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
         ScrollView {
@@ -79,7 +80,11 @@ struct HomeView: View {
                 )
                 
                 MetricBox(title: "Success Score", description: "Success Score is a dynamic tracking system that measures your progress, keeps you motivated, and helps you achieve your goals.") {
-                    CircleProgressView(progress: 0.5, color: .blue, label: "50%")
+                    CircleProgressView(
+                        progress: dummyData.successScore,
+                        color: .blue,
+                        label: "\(Int(dummyData.successScore * 100))%"
+                    )
                 }
                 
                 Text("Key Information")
@@ -92,7 +97,11 @@ struct HomeView: View {
                 // Total Screen Time Today Box
                 MetricBox(title: "Total Screen Time Today", description: "Tracks your daily device usage, helping you stay aware and manage your screen habits effectively.") {
                     VStack {
-                        CircleProgressView(progress: 0.4, color: .green, label: "2 hrs")
+                        CircleProgressView(
+                            progress: dummyData.todayProgress,
+                            color: .green,
+                            label: dummyData.formatMinutes(dummyData.totalScreenTimeToday)
+                        )
                         Text("Healthy Range")
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
@@ -105,7 +114,11 @@ struct HomeView: View {
                 
                 // Screen Time Countdown Box
                 MetricBox(title: "Screen Time Countdown", description: "Tracks the remaining time before you hit your daily screen limit, helping you stay mindful and in control of your digital habits.") {
-                    CircleProgressView(progress: 0.75, color: .orange, label: "1 hr")
+                    CircleProgressView(
+                        progress: dummyData.countdownProgress,
+                        color: .orange,
+                        label: dummyData.formatMinutes(dummyData.remainingTimeToday)
+                    )
                 }
                 
                 // Device & Session Insights Box
@@ -115,9 +128,9 @@ struct HomeView: View {
                         .fontWeight(.bold)
                     
                     VStack(alignment: .leading, spacing: 12) {
-                        InsightRow(icon: "iphone", text: "Unlocks Per Day: 47")
-                        InsightRow(icon: "clock", text: "Sessions: 1h 24m longest, 3m shortest")
-                        InsightRow(icon: "heart.text.square", text: "Screen Time: 65% active, 35% idle")
+                        InsightRow(icon: "iphone", text: "Unlocks Per Day: \(dummyData.unlocksPerDay)")
+                        InsightRow(icon: "clock", text: "Sessions: \(dummyData.formatMinutes(dummyData.longestSession)) longest, \(dummyData.shortestSession)m shortest")
+                        InsightRow(icon: "heart.text.square", text: "Screen Time: \(dummyData.activeScreenTimePercentage)% active, \(dummyData.idleScreenTimePercentage)% idle")
                     }
                 }
                 .padding(20)
@@ -129,28 +142,25 @@ struct HomeView: View {
         }
         .background(Color(.systemGray6).opacity(0.5).edgesIgnoringSafeArea(.all))
         .onAppear {
-            if !isLoadingTip {
-                refreshTip()
+            if !hasLoadedInitialTip {
+                loadInitialTip()
+                hasLoadedInitialTip = true
             }
         }
+    }
+    
+    private func loadInitialTip() {
+        currentTip = dummyData.getRandomTip()
     }
     
     private func refreshTip() {
         guard !isLoadingTip else { return }
         isLoadingTip = true
         
-        Task {
-            let apiKey = "AIzaSyCQry4YMN4sIONcklSyHqGSKZBU_HCnl3s"
-            let ai = GoogleGenAI(apiKey: apiKey)
-            
-            let newTip = await ai.generateContent(
-                prompt: "Give me a single short tip (max 20 words) for digital wellbeing and healthy technology use."
-            )
-            
-            await MainActor.run {
-                currentTip = newTip
-                isLoadingTip = false
-            }
+        // Simulate loading delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            currentTip = dummyData.getRandomTip()
+            isLoadingTip = false
         }
     }
 }
