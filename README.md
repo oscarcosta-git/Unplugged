@@ -28,6 +28,11 @@ This is a **semi-functional prototype**. Some features use placeholder data due 
 View the code and assets here:  
 👉 [https://github.com/oscarcosta-git/Unplugged](https://github.com/oscarcosta-git/Unplugged)
 
+### 📄 Download Portfolio
+
+You can download my portfolio PDF here:  
+[Oscar Costa - Final Assessment Portfolio](./Oscar%20Costa%20-%2040007%20iOS%20Innovation%20Studio%20-%20Final%20Assessment.pdf)
+
 ---
 
 Created by Oscar Costa, Slim Torbey, and Maximus Cham  
